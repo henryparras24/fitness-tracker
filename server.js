@@ -1,6 +1,8 @@
 const express = require("express");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+const path = require("path");
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,13 +19,19 @@ app.use(express.static("public"));
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { useNewUrlParser: true });
 
-// db.Library.create({ name: "Campus Library" })
-//   .then(dbLibrary => {
-//     console.log(dbLibrary);
-//   })
-//   .catch(({message}) => {
-//     console.log(message);
-//   });
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "./public/index.html"));
+  });
+
+  app.get("/exercise", function(req, res) {
+    res.sendFile(path.join(__dirname, "./public/exercise.html"));
+  });
+
+  app.get("/stats", function(req, res) {
+    res.sendFile(path.join(__dirname, "./public/stats.html"));
+  });
+
 
 
 // getting all the workouts
@@ -48,17 +56,53 @@ app.get("/workouts/:id", (req, res) => {
     });
 });
 
-// update a workout POSSIBLE
-app.post("/submit", ({body}, res) => {
-    db.Book.create(body)
-      .then(({_id}) => db.Library.findOneAndUpdate({}, { $push: { books: _id } }, { new: true }))
-      .then(dbLibrary => {
-        res.json(dbLibrary);
+// create a new workout
+app.post("/api/workouts", (req, res) =>{
+    db.Workout.create({})
+    .then(newWorkout => {
+      console.log(newWorkout);
+      res.json(newWorkout);
+    })
+    .catch(err => {
+      res.json(err);
+    });
+  });
+
+
+// update a workout 
+app.put("/api/workouts/:id", (req, res) => {
+    console.log(req.body)
+      db.Workout.findOneAndUpdate(
+          {_id: req.params.id}, { 
+              $push: { exercises: req.body } }, { new: true })
+      .then(dbWorkout => {
+        res.json(dbWorkout);
       })
       .catch(err => {
         res.json(err);
       });
   });
+
+
+//   app.put("/api/workouts/:id", (req, res) => {
+//     console.log(req.body)
+//    db.Workout.findOneAndUpdate(
+//         {_id: req.params.id},
+//         {
+//             $push: {
+//                 exercises: req.body
+//             },
+//         },
+//         { new: true })//if new which yes
+//     .then(dbWorkout => {
+//         res.json(dbWorkout)
+//     })
+//     .catch(err => {
+//         res.json(err)
+//     })
+//   })
+  
+
 
 app.get("/populated", (req, res) => {
   db.Library.find({})
