@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-  const { Schema } = mongoose;
+const Schema = mongoose.Schema;
 
   const workoutSchema = new Schema(
     {
@@ -8,10 +8,11 @@ const mongoose = require('mongoose');
       {
         type: { type: String, required: "question" },
         name: { type: String, required: "question" },
+        distance: {type: Number},
         duration: { type: Number, required: "question" },
         weight: { type: Number},
         reps: { type: Number},
-        sets: { type: Number} 
+        sets: { type: Number}
     
   }
 ]

@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false,  })
 
 
 app.get("/", (req, res) => {
@@ -34,27 +34,47 @@ app.get("/", (req, res) => {
 
 
 
-// getting all the workouts
-app.get("/workouts", (req, res) => {
-  db.Workout.find({})
+// Read last workout > WORK
+app.get("/api/workouts", (req, res) => {
+    db.Workout.aggregate([
+      {
+        $addFields: {
+          totalDuration: { 
+            $sum: "$exercises.duration"
+          }
+        }
+      }
+    ])
     .then(dbWorkout => {
-      res.json(dbWorkout);
+        res.json(dbWorkout);
     })
     .catch(err => {
-      res.json(err);
+        res.status(400).json(err);
     });
-});
+  });
 
-// get a single workout
-app.get("/workouts/:id", (req, res) => {
-  db.Workout.findOne({id: req.body.id})
-    .then(dbWorkout => {
-      res.json(dbWorkout);
-    })
-    .catch(err => {
-      res.json(err);
-    });
-});
+
+// // getting all the workouts
+// app.get("/api/workouts", (req, res) => {
+//   db.Workout.find({})
+//     .then(dbWorkout => {
+//       res.json(dbWorkout);
+//     })
+//     .catch(err => {
+//       res.json(err);
+//     });
+// });
+
+// // get a single workout
+// app.get("/api/workouts/:id", (req, res) => {
+//   db.Workout.findOne({id: req.body.id})
+//     .then(dbWorkout => {
+//       res.json(dbWorkout);
+//     })
+//     .catch(err => {
+//       res.json(err);
+//     });
+// });
 
 // create a new workout
 app.post("/api/workouts", (req, res) =>{
@@ -84,6 +104,37 @@ app.put("/api/workouts/:id", (req, res) => {
   });
 
 
+// in a 7 day range of workouts
+app.get("/api/workouts/range", (req, res) => {
+    db.Workout.aggregate([
+      {
+        $addFields: {
+          totalDuration: { 
+            $sum: "$exercises.duration"
+          }
+        }
+      }
+    ])
+    .limit(7)
+    .then(newWorkout => {
+      res.json(newWorkout);
+    }).catch(err => {
+      res.json(err);
+    });
+  });
+
+
+
+  // delete a workout
+  app.delete("/api/workouts/:id", (req, res) =>{
+    db.Workout.findByIdAndDelete( req.params.id)
+    .then(deletedWorkout => {
+      res.json(deletedWorkout);
+    }).catch(err => {
+      res.json(err);
+    });
+  });
+
 //   app.put("/api/workouts/:id", (req, res) => {
 //     console.log(req.body)
 //    db.Workout.findOneAndUpdate(
@@ -104,16 +155,16 @@ app.put("/api/workouts/:id", (req, res) => {
   
 
 
-app.get("/populated", (req, res) => {
-  db.Library.find({})
-    .populate("books")
-    .then(dbLibrary => {
-      res.json(dbLibrary);
-    })
-    .catch(err => {
-      res.json(err);
-    });
-});
+// app.get("/populated", (req, res) => {
+//   db.Library.find({})
+//     .populate("books")
+//     .then(dbLibrary => {
+//       res.json(dbLibrary);
+//     })
+//     .catch(err => {
+//       res.json(err);
+//     });
+// });
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}!`);
