@@ -54,28 +54,6 @@ app.get("/api/workouts", (req, res) => {
   });
 
 
-// // getting all the workouts
-// app.get("/api/workouts", (req, res) => {
-//   db.Workout.find({})
-//     .then(dbWorkout => {
-//       res.json(dbWorkout);
-//     })
-//     .catch(err => {
-//       res.json(err);
-//     });
-// });
-
-// // get a single workout
-// app.get("/api/workouts/:id", (req, res) => {
-//   db.Workout.findOne({id: req.body.id})
-//     .then(dbWorkout => {
-//       res.json(dbWorkout);
-//     })
-//     .catch(err => {
-//       res.json(err);
-//     });
-// });
-
 // create a new workout
 app.post("/api/workouts", (req, res) =>{
     db.Workout.create({})
@@ -135,36 +113,7 @@ app.get("/api/workouts/range", (req, res) => {
     });
   });
 
-//   app.put("/api/workouts/:id", (req, res) => {
-//     console.log(req.body)
-//    db.Workout.findOneAndUpdate(
-//         {_id: req.params.id},
-//         {
-//             $push: {
-//                 exercises: req.body
-//             },
-//         },
-//         { new: true })//if new which yes
-//     .then(dbWorkout => {
-//         res.json(dbWorkout)
-//     })
-//     .catch(err => {
-//         res.json(err)
-//     })
-//   })
-  
 
-
-// app.get("/populated", (req, res) => {
-//   db.Library.find({})
-//     .populate("books")
-//     .then(dbLibrary => {
-//       res.json(dbLibrary);
-//     })
-//     .catch(err => {
-//       res.json(err);
-//     });
-// });
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}!`);
